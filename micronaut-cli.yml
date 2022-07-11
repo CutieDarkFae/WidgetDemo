@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: example.micronaut.micronautguide
+testFramework: junit
+sourceLanguage: kotlin
+buildTool: gradle
+features: [app-name, azure-function, azure-function-http, gradle, jackson-databind, junit, kotlin, kotlin-application, kotlin-build, logback, micronaut-build, readme, yaml]

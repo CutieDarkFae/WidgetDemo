@@ -1,0 +1,76 @@
+plugins {
+    id("org.jetbrains.kotlin.jvm") version "1.6.21"
+    id("org.jetbrains.kotlin.kapt") version "1.6.21"
+    id("org.jetbrains.kotlin.plugin.allopen") version "1.6.21"
+    id("io.micronaut.application") version "3.4.1"
+    id("com.microsoft.azure.azurefunctions") version "1.8.2"
+}
+
+version = "0.1"
+group = "example.micronaut.micronautguide"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("io.micronaut:micronaut-jackson-databind")
+    implementation("io.micronaut.kotlin:micronaut-kotlin-runtime")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}")
+    runtimeOnly("ch.qos.logback:logback-classic")
+    implementation("io.micronaut:micronaut-validation")
+
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
+    testImplementation("io.micronaut:micronaut-http-client")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
+
+    implementation("io.micronaut.sql:micronaut-hibernate-jpa")
+    implementation("io.micronaut.sql:micronaut-jdbc-hikari")
+    runtimeOnly("com.h2database:h2")
+    implementation("jakarta.persistence:jakarta.persistence-api:2.2.3")
+}
+
+
+application {
+    mainClass.set("example.micronaut.micronautguide.ApplicationKt")
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("1.8")
+}
+
+tasks {
+    compileKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+    compileTestKotlin {
+        kotlinOptions {
+            jvmTarget = "1.8"
+        }
+    }
+    azurefunctions {
+        resourceGroup = "java-functions-group"
+        appName = "azure"
+        pricingTier = "Consumption"
+        region = "westus"
+        runtime {
+          os = "linux"
+        }
+        localDebug = "transport=dt_socket,server=y,suspend=n,address=5005"
+}
+}
+graalvmNative.toolchainDetection = false
+micronaut {
+    runtime("azure_function")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("example.micronaut.micronautguide.*")
+    }
+}
+
+
+
