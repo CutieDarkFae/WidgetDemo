@@ -1,11 +1,15 @@
 package example.micronaut.micronautguide
 
+import io.micronaut.context.annotation.Executable
 import io.micronaut.core.annotation.Introspected
+import io.micronaut.data.annotation.Repository
+import io.micronaut.data.repository.CrudRepository
 import io.micronaut.http.annotation.Body
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.annotation.Post
 import io.micronaut.transaction.annotation.ReadOnly
+import jakarta.inject.Inject
 import jakarta.inject.Singleton
 import java.util.*
 import javax.persistence.*
@@ -13,50 +17,41 @@ import javax.validation.constraints.NotNull
 
 @Controller("/widgets")
 class WidgetController() {
-  var widgets = ArrayList<Widget>()
+  @Inject
+  lateinit var widgetRespository: WidgetRepository
 
-  @Get("/all")
+   @Get("/all")
   fun getAllWidgets(): GetAllWidgetsResponse {
+    val response = widgetRespository.findAll()
+    var widgets = ArrayList<Widget>()
+    response.forEach { widget -> widgets.add(widget) }
     return GetAllWidgetsResponse(widgets)
   }
 
   @Post("/add")
   fun addWidget(@Body request: AddWidgetRequest) : AddWidgetResponse {
-    val widget = Widget(widgets.size + 1L, request.name, request.data, Date(), Date())
-    widgets.add(widget)
+    val widget = widgetRespository.addWidget(request.name, request.data)
     return AddWidgetResponse(widget)
   }
 }
 
-@Singleton
-class WidgetRepository(private val entityManager: EntityManager) {
-  @ReadOnly
-  fun getAllWidgets(): List<Widget> {
-    val sql = "Select w from Widget w order by w.lastActionDate"
-    val query: TypedQuery<Widget> = entityManager.createQuery(sql)
-  }
+@Repository
+interface WidgetRepository: CrudRepository<Widget, Long> {
+  @Executable
+  fun addWidget(name: String, data: String): Widget;
 }
 
 @Entity
-@Table(name = "Widget")
-public open class Widget(
+data class Widget(
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue
   val id: Long,
-  @NotNull
-  @Column(name="name", nullable=false)
   val name: String,
-  @NotNull
-  @Column(name="data", nullable=false)
   val data: String,
-  @NotNull
-  @Column(name="start_date", nullable=false)
-  val startDate: Date,
-  @NotNull
-  @Column(name="last_action_date", nullable=false)
-  val lastActionDate: Date)
+  val startDate: Date = Date(),
+  val lastActionDate: Date = Date()
 ) {
-
+  constructor() : this(-1, "", "", Date(), Date())
 }
 
 @Introspected
