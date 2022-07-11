@@ -29,7 +29,7 @@ class WidgetsTest {
       Assertions.assertEquals(responseWidget.widget.name, name)
       Assertions.assertEquals(responseWidget.widget.data, data)
       Assertions.assertNotEquals(responseWidget.widget.id, null)
-      Assertions.assertNotEquals(responseWidget.widget.lastActionDate, null)
+      Assertions.assertEquals(responseWidget.widget.endDate, null)
       Assertions.assertNotEquals(responseWidget.widget.startDate, null)
     }
   }

@@ -30,26 +30,26 @@ class WidgetController() {
 
   @Post("/add")
   fun addWidget(@Body request: AddWidgetRequest) : AddWidgetResponse {
-    val widget = widgetRespository.addWidget(request.name, request.data)
-    return AddWidgetResponse(widget)
+    val widget = Widget(null, request.name, request.data, Date(), null)
+    val response = widgetRespository.save(widget)
+    return AddWidgetResponse(response)
   }
 }
 
 @Repository
 interface WidgetRepository: CrudRepository<Widget, Long> {
-  @Executable
-  fun addWidget(name: String, data: String): Widget;
 }
 
 @Entity
+@Introspected
 data class Widget(
   @Id
   @GeneratedValue
-  val id: Long,
+  val id: Long? = null,
   val name: String,
   val data: String,
   val startDate: Date = Date(),
-  val lastActionDate: Date = Date()
+  val endDate: Date? = null
 ) {
   constructor() : this(-1, "", "", Date(), Date())
 }
