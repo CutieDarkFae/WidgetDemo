@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.microsoft.azure.functions.HttpStatus
 import io.micronaut.http.HttpMethod
 import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test
 
 class WidgetsTest {
@@ -26,12 +27,21 @@ class WidgetsTest {
       val response = function.request(HttpMethod.POST, "/widgets/add").body(mapper.writeValueAsString(input)).invoke()
       Assertions.assertEquals(HttpStatus.OK, response.status)
       val responseWidget: AddWidgetResponse = mapper.readValue(response.bodyAsString)
-      Assertions.assertEquals(responseWidget.widget.name, name)
-      Assertions.assertEquals(responseWidget.widget.data, data)
-      Assertions.assertNotEquals(responseWidget.widget.id, null)
-      Assertions.assertEquals(responseWidget.widget.endDate, null)
-      Assertions.assertNotEquals(responseWidget.widget.startDate, null)
+      val widget = responseWidget.widget
+      if (widget != null) {
+        Assertions.assertEquals(widget.name, name)
+        Assertions.assertEquals(widget.data, data)
+        Assertions.assertNotEquals(widget.id, null)
+        Assertions.assertNotEquals(widget.startDate, null)
+        Assertions.assertEquals(widget.endDate, null)
+      } else {
+        fail("widget is null")
+      }
     }
   }
 
+//  @Test
+  fun testGetSingleWidget() {
+
+  }
 }
