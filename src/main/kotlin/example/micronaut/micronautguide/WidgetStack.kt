@@ -22,7 +22,7 @@ class WidgetController() {
   }
 
   @Get("/{key}")
-  fun getWidgetById(@PathVariable key: String): AddWidgetResponse {
+  fun getWidgetByKey(@PathVariable key: String): AddWidgetResponse {
     val response = widgetRespository.findByKeyAndEndDateIsNull(UUID.fromString(key))
     if (response.isPresent) return AddWidgetResponse(response.get())
     return AddWidgetResponse(null)
