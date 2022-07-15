@@ -16,7 +16,7 @@ class WidgetController() {
    @Get("/all")
   fun getAllWidgets(): GetAllWidgetsResponse {
     val response = widgetRespository.findAllByEndDateIsNull()
-    var widgets = ArrayList<Widget>()
+    val widgets = ArrayList<Widget>()
     response.forEach { widget -> widgets.add(widget) }
     return GetAllWidgetsResponse(widgets)
   }
@@ -39,12 +39,23 @@ class WidgetController() {
   fun updateWidget(@PathVariable key: String, @Body request: AddWidgetRequest): AddWidgetResponse? {
     val response = widgetRespository.findByKeyAndEndDateIsNull(UUID.fromString(key))
     if (response.isPresent) {
-      var widget = response.get()
+      val widget = response.get()
       widget.endDate = Date()
       widgetRespository.update(widget)
       val w2 = Widget(null, widget.key, request.name, request.data, widget.endDate!!, null)
       val w3 = widgetRespository.save(w2)
       return AddWidgetResponse(w3)
+    }
+    return null
+  }
+
+  @Post ("/delete/{key}")
+  fun deleteWidget(@PathVariable key: String): AddWidgetResponse? {
+    val response = widgetRespository.findByKeyAndEndDateIsNull(UUID.fromString(key))
+    if (response.isPresent) {
+      val widget = response.get()
+      widget.endDate = Date()
+      return AddWidgetResponse(widgetRespository.update(widget))
     }
     return null
   }
